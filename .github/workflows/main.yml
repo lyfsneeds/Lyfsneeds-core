@@ -1,0 +1,123 @@
+# Intelligent Pricing + Sponsor Packages + Launch Scripts
+mkdir -p scripts/pricing scripts/launch scripts/booking scripts/ai
+
+# Business Type Classifier
+cat > scripts/pricing/classifyBusinessType.ts << 'EOF'
+export function classifyBusinessType(businessType: string): string {
+  const type = businessType.toLowerCase()
+  if (type.includes('bank') || type.includes('hospital') || type.includes('university')) return 'corporate'
+  if (type.includes('security') || type.includes('logistics') || type.includes('franchise')) return 'enterprise'
+  if (type.includes('therapist') || type.includes('attorney') || type.includes('consultant')) return 'licensed-professional'
+  if (type.includes('restaurant') || type.includes('salon') || type.includes('retail')) return 'owner-operated'
+  return 'self-employed'
+}
+EOF
+
+# Dynamic Pricing Engine
+cat > scripts/pricing/getPricingForType.ts << 'EOF'
+import { classifyBusinessType } from './classifyBusinessType'
+
+export function getPricingForType(businessType: string) {
+  const category = classifyBusinessType(businessType)
+  const pricing = {
+    'self-employed': { pro: 19, prestige: 49, safety: 99 },
+    'owner-operated': { pro: 49, prestige: 99, safety: 199 },
+    'licensed-professional': { pro: 99, prestige: 199, safety: 499 },
+    'enterprise': { pro: 499, prestige: 999, safety: 5000 },
+    'corporate': { pro: 999, prestige: 2499, safety: 30000 },
+  }
+  return pricing[category]
+}
+EOF
+
+# Safety+Security 360+ Tier Matrix
+cat > scripts/pricing/getSafetyTier.ts << 'EOF'
+export function getSafetyTier(audience: string) {
+  const tiers = {
+    family: { price: 19, features: ['Fall detection', 'Emergency alerts', 'Wearable sync'] },
+    licensed: { price: 99, features: ['Client safety logs', 'Compliance alerts', 'Device integration'] },
+    enterprise: { price: 999, features: ['Multi-device sync', 'Geo-fencing', 'Audit logs', 'Legal compliance'] },
+    corporate: { price: 5000, features: ['National ops', 'AR/VR zones', 'Sponsor dashboard'] },
+  }
+  return tiers[audience]
+}
+EOF
+
+# Sponsor + Life Member Package Seeder
+cat > scripts/pricing/seedSponsorPackages.ts << 'EOF'
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
+
+async function main() {
+  await prisma.sponsorPackage.createMany({
+    data: [
+      {
+        name: 'Founding Sponsor',
+        price: 50000,
+        durationMonths: 12,
+        benefits: 'Top-tier listing, cinematic reel, AR/VR zone, press release, badge boost',
+      },
+      {
+        name: 'Life Member',
+        price: 75000,
+        durationMonths: 999,
+        benefits: 'Lifetime top-tier listing, spotlight carousel, charitable legacy feed, AR/VR access',
+      },
+    ],
+  })
+  console.log('🏆 Sponsor + Life Member packages seeded.')
+}
+
+main()
+EOF
+
+# AI Concierge Assistant
+cat > scripts/ai/concierge.ts << 'EOF'
+export async function aiConcierge(userRequest: string) {
+  // Simulate smart negotiation, provider comparison, and scheduling
+  console.log(`🤖 AI Concierge activated for: ${userRequest}`)
+  return {
+    quoteComparison: true,
+    providerMatch: true,
+    appointmentScheduled: true,
+    loyaltyPointsEarned: 25,
+  }
+}
+EOF
+
+# Universal Booking Engine
+cat > scripts/booking/bookAppointment.ts << 'EOF'
+export async function bookAppointment(businessId: string, userId: string, time: string) {
+  console.log(`📅 Booking confirmed for ${businessId} at ${time} by ${userId}`)
+  return { status: 'confirmed', loyaltyPoints: 10 }
+}
+EOF
+
+# Launch-Day Trigger Script
+cat > scripts/launch/launch-day.sh << 'EOF'
+#!/bin/bash
+echo "🚀 Launch Day Activated"
+npm run seed:sponsorPackages
+npm run seed:arZones
+npm run run:founderChallenge
+npm run generate:leaderboard
+npm run generate:sponsorSnapshot
+echo "🎬 All launch modules triggered. LyfsNeeds is live."
+EOF
+chmod +x scripts/launch/launch-day.sh
+
+# Revenue Report Script
+cat > scripts/launch/revenue-report.sh << 'EOF'
+#!/bin/bash
+echo "📊 Revenue Report"
+npm run generate:sponsorSnapshot
+npm run generate:leaderboard
+echo "✅ Revenue analytics complete."
+EOF
+chmod +x scripts/launch/revenue-report.sh
+
+# Add to package.json scripts
+sed -i '/"seed:sponsorPackages":/a \    "classify:businessType": "ts-node scripts/pricing/classifyBusinessType.ts",' package.json
+sed -i '/"seed:sponsorPackages":/a \    "get:pricingForType": "ts-node scripts/pricing/getPricingForType.ts",' package.json
+sed -i '/"seed:sponsorPackages":/a \    "get:safetyTier": "ts-node scripts/pricing/getSafetyTier.ts",' package.json
+sed -i '/"seed:sponsorPackages":/a \    "seed:sponsorPackages": "ts-node scripts/pricing/seedSponsorPackages.ts",' package.json
